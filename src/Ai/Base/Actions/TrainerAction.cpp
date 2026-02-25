@@ -281,10 +281,23 @@ bool AutoGearAction::Execute(Event /*event*/)
     }
 
     botAI->TellMaster("I'm auto gearing");
-    uint32 gs = sPlayerbotAIConfig.autoGearScoreLimit == 0
-                    ? 0
-                    : PlayerbotFactory::CalcMixedGearScore(sPlayerbotAIConfig.autoGearScoreLimit,
-                                                           sPlayerbotAIConfig.autoGearQualityLimit);
+    uint32 gs;
+    if (sPlayerbotAIConfig.autoGearScoreLimitByMaster)
+    {
+        Player* master = botAI->GetMaster();
+        gs = master ? PlayerbotAI::GetMixedGearScore(master, true, false, 12) *
+                          sPlayerbotAIConfig.autoInitEquipLevelLimitRatio
+                    : 0;
+        if (gs == 0)
+            gs = 1;
+    }
+    else
+    {
+        gs = sPlayerbotAIConfig.autoGearScoreLimit == 0
+                 ? 0
+                 : PlayerbotFactory::CalcMixedGearScore(sPlayerbotAIConfig.autoGearScoreLimit,
+                                                        sPlayerbotAIConfig.autoGearQualityLimit);
+    }
     PlayerbotFactory factory(bot, bot->GetLevel(), sPlayerbotAIConfig.autoGearQualityLimit, gs);
     factory.InitEquipment(true);
     factory.InitAmmo();
