@@ -551,6 +551,13 @@ AiPlayerbot.AutoGearQualityLimit = 3
 # Default: 0 (no limit)
 AiPlayerbot.AutoGearScoreLimit = 0
 
+# When enabled (1), the autogear command derives the gear score limit from the master's current
+# average gear score (top 12 slots) multiplied by AutoInitEquipLevelLimitRatio, the same way
+# the init=auto command works. This overrides AutoGearScoreLimit when active.
+# When disabled (0), AutoGearScoreLimit is used instead.
+# Default: 0 (disabled)
+AiPlayerbot.AutoGearScoreLimitByMaster = 0
+
 # Enable/Disable cheats for bots
 # "food" (bots eat or drink without using food or drinks from their inventory)
 # "gold" (bots have infinite gold)
