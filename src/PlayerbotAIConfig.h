@@ -415,7 +415,7 @@ public:
             altMaintenanceGlyphs,
             altMaintenanceKeyring,
             altMaintenanceGemsEnchants;
-    int32 autoGearCommand, autoGearCommandAltBots, autoGearQualityLimit, autoGearScoreLimit;
+    int32 autoGearCommand, autoGearCommandAltBots, autoGearQualityLimit, autoGearScoreLimit, autoGearScoreLimitByMaster;
 
     uint32 useGroundMountAtMinLevel;
     uint32 useFastGroundMountAtMinLevel;
