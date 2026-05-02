@@ -153,9 +153,8 @@ ItemUsage ItemUsageValue::Calculate()
     // Need to add something like free bagspace or item value.
     if (proto->SellPrice > 0)
     {
-        if (proto->Quality >= ITEM_QUALITY_NORMAL && !isSoulbound)
+        if (proto->Quality >= ITEM_QUALITY_NORMAL && !isSoulbound && proto->Bonding != BIND_WHEN_PICKED_UP)
             return ITEM_USAGE_AH;
-
         else
             return ITEM_USAGE_VENDOR;
     }
@@ -234,6 +233,11 @@ ItemUsage ItemUsageValue::QueryItemUsageForEquip(ItemTemplate const* itemProto, 
     StatsWeightCalculator calculator(bot);
     calculator.SetItemSetBonus(false);
     calculator.SetOverflowPenalty(false);
+
+    // Apply PvP weights if the bot is specced for PvP
+    bool isPvp = sRandomPlayerbotMgr.IsSpecPvp(bot->GetGUID().GetCounter(), bot->getClass());
+    if (isPvp)
+        calculator.SetPvpSpec(true);
 
     float itemScore = calculator.CalculateItem(itemProto->ItemId, randomPropertyId);
 
@@ -864,8 +868,6 @@ bool ItemUsageValue::SpellGivesSkillUp(uint32 spellId, Player* bot)
         if (skill->SkillLine)
         {
             uint32 SkillValue = bot->GetPureSkillValue(skill->SkillLine);
-
-            uint32 craft_skill_gain = sWorld->getIntConfig(CONFIG_SKILL_GAIN_CRAFTING);
 
             if (SkillGainChance(SkillValue, skill->TrivialSkillLineRankHigh,
                                 (skill->TrivialSkillLineRankHigh + skill->TrivialSkillLineRankLow) / 2,
