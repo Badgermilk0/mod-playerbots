@@ -306,6 +306,14 @@ bool BisGearAction::Execute(Event event)
         return false;
     }
 
+    // Match-only mode disables bis as well (see AiPlayerbot.AutoGearMatchOnly).
+    if (sPlayerbotAIConfig.autoGearMatchOnly)
+    {
+        botAI->TellError(PlayerbotTextMgr::instance().GetBotTextOrDefault(
+            "autogear_match_only_error", "Only 'autogear match' is allowed on this server.", {}));
+        return false;
+    }
+
     if (!sPlayerbotAIConfig.autoGearCommandAltBots &&
         !sPlayerbotAIConfig.IsInRandomAccountList(bot->GetSession()->GetAccountId()))
     {
@@ -594,6 +602,21 @@ bool AutoGearAction::Execute(Event event)
         param = param.size() > 5 ? param.substr(6) : "";
         size_t const start = param.find_first_not_of(" \t");
         param = start == std::string::npos ? "" : param.substr(start);
+    }
+
+    // Optional server restriction (AiPlayerbot.AutoGearMatchOnly): 'match' is the only accepted
+    // argument. Bare 'autogear', a quality word and an explicit item level are all refused. Match
+    // always regears from scratch so the bot tracks the master's item level in both directions
+    // instead of only upgrading past the incremental 1.2x threshold.
+    if (sPlayerbotAIConfig.autoGearMatchOnly)
+    {
+        if (param != "match")
+        {
+            botAI->TellError(PlayerbotTextMgr::instance().GetBotTextOrDefault(
+                "autogear_match_only_error", "Only 'autogear match' is allowed on this server.", {}));
+            return false;
+        }
+        reset = true;
     }
 
     if (!param.empty())

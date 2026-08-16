@@ -567,12 +567,25 @@ AiPlayerbot.AltMaintenanceKeyring = 1
 #   autogear reset      - erase all equipped gear and regear from scratch (combinable: autogear reset green,
 #                         autogear reset 200, autogear reset match)
 #   autogear bis        - separate BiS command, see AutoGearBisCommand below
+# Set AutoGearMatchOnly = 1 below to restrict the command to 'autogear match' alone.
 # Default: 1 (enabled)
 AiPlayerbot.AutoGearCommand = 1
 
 # Enable/Disable autogear command on altbots
 # Default: 1 (enabled)
 AiPlayerbot.AutoGearCommandAltBots = 1
+
+# Restrict the autogear command to master-matching only.
+# When enabled (1) the only accepted form is 'autogear match' (or 'autogear reset match'): bare
+# 'autogear', a quality word (autogear green), an explicit item level (autogear 200) and
+# 'autogear bis' are all refused, the last regardless of AutoGearBisCommand.
+# Under this setting 'autogear match' always erases the bot's equipped gear and regears from
+# scratch, so the bot lands on the commanding player's average item level instead of only
+# upgrading past the incremental threshold. AutoGearQualityLimit and AutoGearScoreLimit still cap
+# the result. Set AutoGearCommandAltBots = 0 alongside this to keep the command to RNDbots and
+# addclass bots only.
+# Default: 0 (disabled, full autogear syntax available)
+AiPlayerbot.AutoGearMatchOnly = 0
 
 # If 1 (enabled) chat command: autogear bis, gives bots BiS gear from the playerbots_bis_gear table
 # whose item-level floor matches AutoGearScoreLimit (e.g. 290 = ICC, 245 = ToC,
