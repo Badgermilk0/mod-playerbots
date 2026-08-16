@@ -1,5 +1,11 @@
-#ifndef _PLAYERBOT_NEWRPGINFO_H
-#define _PLAYERBOT_NEWRPGINFO_H
+/*
+ * This file is part of the mod-playerbots module for AzerothCore. See AUTHORS file for Copyright
+ * information; released under GNU GPL v2 license, redistribute/modify under version 2 of the License,
+ * or (at your option) any later version.
+ */
+
+#ifndef PLAYERBOTS_NEWRPGINFO_H
+#define PLAYERBOTS_NEWRPGINFO_H
 
 #include "Define.h"
 #include "ObjectGuid.h"
@@ -49,7 +55,8 @@ struct NewRpgInfo
     // RPG_TRAVEL_FLIGHT
     struct TravelFlight
     {
-        ObjectGuid fromFlightMaster{};
+        uint32 flightMasterEntry{0};
+        WorldPosition flightMasterPos{};
         std::vector<uint32> path;
         bool inFlight{false};
     };
@@ -90,13 +97,14 @@ struct NewRpgInfo
     RpgData data;
 
     NewRpgStatus GetStatus();
+    static NewRpgStatus StatusFromString(std::string const& name);
     bool HasStatusPersisted(uint32 maxDuration) { return GetMSTimeDiffToNow(startT) > maxDuration; }
     void ChangeToGoGrind(WorldPosition pos);
     void ChangeToGoCamp(WorldPosition pos);
     void ChangeToWanderNpc();
     void ChangeToWanderRandom();
     void ChangeToDoQuest(uint32 questId, const Quest* quest);
-    void ChangeToTravelFlight(ObjectGuid fromFlightMaster, std::vector<uint32> path);
+    void ChangeToTravelFlight(uint32 flightMasterEntry, WorldPosition flightMasterPos, std::vector<uint32> path);
     void ChangeToOutdoorPvp(ObjectGuid::LowType capturePointSpawnId = 0);
     void ChangeToRest();
     void ChangeToIdle();

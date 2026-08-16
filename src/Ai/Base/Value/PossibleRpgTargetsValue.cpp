@@ -1,18 +1,18 @@
 /*
- * Copyright (C) 2016+ AzerothCore <www.azerothcore.org>, released under GNU AGPL v3 license, you may redistribute it
- * and/or modify it under version 3 of the License, or (at your option), any later version.
+ * This file is part of the mod-playerbots module for AzerothCore. See AUTHORS file for Copyright
+ * information; released under GNU GPL v2 license, redistribute/modify under version 2 of the License,
+ * or (at your option) any later version.
  */
 
 #include "PossibleRpgTargetsValue.h"
-
 #include "CellImpl.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
+#include "NearestGameObjects.h"
 #include "ObjectGuid.h"
 #include "Playerbots.h"
 #include "ServerFacade.h"
 #include "SharedDefines.h"
-#include "NearestGameObjects.h"
 #include <unordered_set>
 
 std::vector<uint32> PossibleRpgTargetsValue::allowedNpcFlags;
@@ -75,7 +75,7 @@ bool PossibleRpgTargetsValue::AcceptUnit(Unit* unit)
 
     TravelTarget* travelTarget = context->GetValue<TravelTarget*>("travel target")->Get();
     if (travelTarget && travelTarget->getDestination() &&
-        travelTarget->getDestination()->getEntry() == unit->GetEntry())
+        static_cast<uint32>(travelTarget->getDestination()->getEntry()) == unit->GetEntry())
         return true;
 
     if (urand(1, 100) < 25 && unit->IsFriendlyTo(bot))

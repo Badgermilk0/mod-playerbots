@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2016+ AzerothCore <www.azerothcore.org>, released under GNU AGPL v3 license, you may redistribute it
- * and/or modify it under version 3 of the License, or (at your option), any later version.
+ * This file is part of the mod-playerbots module for AzerothCore. See AUTHORS file for Copyright
+ * information; released under GNU GPL v2 license, redistribute/modify under version 2 of the License,
+ * or (at your option) any later version.
  */
 
 #include "QuestValues.h"
-
 #include "MapMgr.h"
 #include "Playerbots.h"
 #include "SharedValueContext.h"
@@ -64,7 +64,7 @@ void FindQuestObjectData::GetObjectiveEntries()
 // quest map.
 void FindQuestObjectData::operator()(CreatureData const& creData)
 {
-    uint32 entry = creData.id1;
+    uint32 entry = creData.id;
 
     for (auto& relation : relationMap[entry])
     {
@@ -277,7 +277,7 @@ std::vector<GuidPosition> ActiveQuestObjectivesValue::Calculate()
 
             if (quest->RequiredNpcOrGoCount[objective])
             {
-                uint32 reqCount = quest->RequiredItemCount[objective];
+                uint32 reqCount = quest->RequiredNpcOrGoCount[objective];
                 uint32 hasCount = statusData.CreatureOrGOCount[objective];
 
                 if (!reqCount || hasCount >= reqCount)

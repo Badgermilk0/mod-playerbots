@@ -1,10 +1,11 @@
 /*
- * Copyright (C) 2016+ AzerothCore <www.azerothcore.org>, released under GNU AGPL v3 license, you may redistribute it
- * and/or modify it under version 3 of the License, or (at your option), any later version.
+ * This file is part of the mod-playerbots module for AzerothCore. See AUTHORS file for Copyright
+ * information; released under GNU GPL v2 license, redistribute/modify under version 2 of the License,
+ * or (at your option) any later version.
  */
 
-#ifndef _PLAYERBOT_CHATTRIGGERCONTEXT_H
-#define _PLAYERBOT_CHATTRIGGERCONTEXT_H
+#ifndef PLAYERBOTS_CHATTRIGGERCONTEXT_H
+#define PLAYERBOTS_CHATTRIGGERCONTEXT_H
 
 #include "ChatCommandTrigger.h"
 #include "NamedObjectContext.h"
@@ -41,6 +42,7 @@ public:
         creators["teleport"] = &ChatTriggerContext::teleport;
         creators["taxi"] = &ChatTriggerContext::taxi;
         creators["repair"] = &ChatTriggerContext::repair;
+        creators["emblems"] = &ChatTriggerContext::emblems;
         creators["u"] = &ChatTriggerContext::use;
         creators["use"] = &ChatTriggerContext::use;
         creators["c"] = &ChatTriggerContext::item_count;
@@ -64,6 +66,7 @@ public:
         creators["maintenance"] = &ChatTriggerContext::maintenance;
         creators["remove glyph"] = &ChatTriggerContext::remove_glyph;
         creators["autogear"] = &ChatTriggerContext::autogear;
+        creators["autogear bis"] = &ChatTriggerContext::autogear_bis;
         creators["equip upgrade"] = &ChatTriggerContext::equip_upgrade;
         creators["attack"] = &ChatTriggerContext::attack;
         creators["pull"] = &ChatTriggerContext::pull;
@@ -219,6 +222,7 @@ private:
     static Trigger* maintenance(PlayerbotAI* botAI) { return new ChatCommandTrigger(botAI, "maintenance"); }
     static Trigger* remove_glyph(PlayerbotAI* botAI) { return new ChatCommandTrigger(botAI, "remove glyph"); }
     static Trigger* autogear(PlayerbotAI* botAI) { return new ChatCommandTrigger(botAI, "autogear"); }
+    static Trigger* autogear_bis(PlayerbotAI* botAI) { return new ChatCommandTrigger(botAI, "autogear bis"); }
     static Trigger* equip_upgrade(PlayerbotAI* botAI) { return new ChatCommandTrigger(botAI, "equip upgrade"); }
     static Trigger* co(PlayerbotAI* botAI) { return new ChatCommandTrigger(botAI, "co"); }
     static Trigger* nc(PlayerbotAI* botAI) { return new ChatCommandTrigger(botAI, "nc"); }
@@ -235,6 +239,7 @@ private:
     static Trigger* item_count(PlayerbotAI* botAI) { return new ChatCommandTrigger(botAI, "c"); }
     static Trigger* use(PlayerbotAI* botAI) { return new ChatCommandTrigger(botAI, "use"); }
     static Trigger* repair(PlayerbotAI* botAI) { return new ChatCommandTrigger(botAI, "repair"); }
+    static Trigger* emblems(PlayerbotAI* botAI) { return new ChatCommandTrigger(botAI, "emblems"); }
     static Trigger* taxi(PlayerbotAI* botAI) { return new ChatCommandTrigger(botAI, "taxi"); }
     static Trigger* teleport(PlayerbotAI* botAI) { return new ChatCommandTrigger(botAI, "teleport"); }
     static Trigger* q(PlayerbotAI* botAI) { return new ChatCommandTrigger(botAI, "q"); }

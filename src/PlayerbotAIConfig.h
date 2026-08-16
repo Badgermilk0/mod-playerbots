@@ -1,21 +1,21 @@
 /*
- * Copyright (C) 2016+ AzerothCore <www.azerothcore.org>, released under GNU AGPL v3 license, you may redistribute it
- * and/or modify it under version 3 of the License, or (at your option), any later version.
+ * This file is part of the mod-playerbots module for AzerothCore. See AUTHORS file for Copyright
+ * information; released under GNU GPL v2 license, redistribute/modify under version 2 of the License,
+ * or (at your option) any later version.
  */
 
-#ifndef _PLAYERBOT_PLAYERbotAICONFIG_H
-#define _PLAYERBOT_PLAYERbotAICONFIG_H
-
-#include <mutex>
-#include <unordered_map>
-#include <set>
-#include <vector>
-#include <map>
-#include <algorithm>
-#include <string>
+#ifndef PLAYERBOTS_PLAYERBOTAICONFIG_H
+#define PLAYERBOTS_PLAYERBOTAICONFIG_H
 
 #include "DBCEnums.h"
 #include "SharedDefines.h"
+#include <algorithm>
+#include <map>
+#include <mutex>
+#include <set>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 enum class BotCheatMask : uint32
 {
@@ -40,6 +40,20 @@ enum class HealingManaEfficiency : uint8
     SUPERIOR = 32
 };
 
+enum class ShowHideCosmetic : uint8
+{
+    ALWAYS_HIDE = 0,
+    ALWAYS_SHOW = 1,
+    RANDOMIZE = 2
+};
+
+enum class AutoPartyBuffMode : uint8
+{
+    DISABLED = 0,
+    RAID_ONLY = 1,
+    GROUP_OR_RAID = 2
+};
+
 enum NewRpgStatus : int
 {
     //Initial Status
@@ -62,6 +76,14 @@ enum NewRpgStatus : int
 
 #define MAX_SPECNO 20
 
+// One level range/bucket used by the random bot level brackets sub-feature (see RandomBotLevelMgr).
+struct LevelBracketConfig
+{
+    uint8 lower = 1;
+    uint8 upper = 80;
+    uint8 pct = 0;
+};
+
 class PlayerbotAIConfig
 {
 public:
@@ -73,6 +95,7 @@ public:
     }
 
     bool Initialize();
+    void LoadRandomBotLevelConfig();
     bool IsInRandomAccountList(uint32 id);
     bool IsInRandomQuestItemList(uint32 id);
     bool IsPvpProhibited(uint32 zoneId, uint32 areaId);
@@ -94,6 +117,10 @@ public:
     uint32 lowMana, mediumMana, highMana;
     bool autoSaveMana;
     uint32 saveManaThreshold;
+    AutoPartyBuffMode autoGreaterBlessings;
+    AutoPartyBuffMode autoPartyBuffs;
+    bool tellWhenMissingBuffReagents;
+    uint32 missingBuffReagentMessageCooldown;
     bool autoAvoidAoe;
     float maxAoeAvoidRadius;
     std::set<uint32> aoeAvoidSpellWhitelist;
@@ -125,7 +152,6 @@ public:
     std::vector<uint32> randomBotQuestIds;
     uint32 randomBotTeleportDistance;
     float randomGearLoweringChance;
-    bool incrementalGearInit;
     int32 randomGearQualityLimit;
     int32 randomGearScoreLimit;
     bool preferClassArmorType;
@@ -142,15 +168,10 @@ public:
     uint32 permanentlyInWorldTime;
     uint32 minRandomBotPvpTime, maxRandomBotPvpTime;
     uint32 randomBotsPerInterval;
+    uint32 randomBotPrintStatsInterval;
     uint32 minRandomBotsPriceChangeInterval, maxRandomBotsPriceChangeInterval;
     uint32 disabledWithoutRealPlayerLoginDelay, disabledWithoutRealPlayerLogoutDelay;
     bool randomBotJoinLfg;
-
-    // Buff system
-    // Min group size to use Greater buffs (Paladin, Mage, Druid). Default: 3
-    int32 minBotsForGreaterBuff;
-    // Cooldown (seconds) between reagent-missing RP warnings, per bot & per buff. Default: 30
-    int32 rpWarningCooldown;
 
     // Professions
     bool enableFishingWithMaster;
@@ -224,10 +245,6 @@ public:
 
     uint32 guildRepliesRate;
 
-    bool suggestDungeonsInLowerCaseRandomly;
-
-    // --
-
     bool randomBotJoinBG;
     bool randomBotAutoJoinBG;
 
@@ -249,7 +266,6 @@ public:
     uint32 randomBotAutoJoinBGRatedArena3v3Count;
     uint32 randomBotAutoJoinBGRatedArena5v5Count;
 
-    bool randomBotLoginAtStartup;
     uint32 randomBotTeleLowerLevel, randomBotTeleHigherLevel;
     std::map<uint32, std::pair<uint32, uint32>> zoneBrackets;
     bool logInGroupOnly, logValuesPerTick;
@@ -295,6 +311,7 @@ public:
     float periodicOnlineOfflineRatio;
     bool gearscorecheck;
     bool randomBotPreQuests;
+    bool botSendMailEnabled;
 
     bool guildTaskEnabled;
     uint32 minGuildTaskChangeTime, maxGuildTaskChangeTime;
@@ -306,6 +323,7 @@ public:
     uint32 iterationsPerTick;
 
     std::mutex m_logMtx;
+    bool enableAutoTradeOnItemMention;
     std::vector<std::string> tradeActionExcludedPrefixes;
     std::vector<std::string> allowedLogFiles;
     std::unordered_map<std::string, std::pair<FILE*, bool>> logFiles;
@@ -328,8 +346,8 @@ public:
     uint32 commandServerPort;
     bool perfMonEnabled;
     bool summonWhenGroup;
-    bool randomBotShowHelmet;
-    bool randomBotShowCloak;
+    ShowHideCosmetic randomBotShowHelmet;
+    ShowHideCosmetic randomBotShowCloak;
     bool randomBotFixedLevel;
     bool disableRandomLevels;
     float randomBotXPRate;
@@ -390,8 +408,8 @@ public:
 
     uint32 selfBotLevel;
     bool downgradeMaxLevelBot;
-    bool equipmentPersistence;
-    int32 equipmentPersistenceLevel;
+    bool equipAndSpecPersistence;
+    int32 equipAndSpecPersistenceLevel;
     int32 groupInvitationPermission;
     bool keepAltsInGroup = false;
     bool KeepAltsInGroup() const { return keepAltsInGroup; }
@@ -401,6 +419,7 @@ public:
     int reviveBotWhenSummoned;
     bool botRepairWhenSummon;
     bool autoInitOnly;
+    bool resetInstanceIdForAltBots;
     float autoInitEquipLevelLimitRatio;
     int32 maxAddedBots;
     int32 addClassCommand;
@@ -426,6 +445,7 @@ public:
             altMaintenanceKeyring,
             altMaintenanceGemsEnchants;
     int32 autoGearCommand, autoGearCommandAltBots, autoGearQualityLimit, autoGearScoreLimit;
+    int32 autoGearBisCommand;
 
     uint32 useGroundMountAtMinLevel;
     uint32 useFastGroundMountAtMinLevel;
@@ -461,6 +481,37 @@ public:
     bool IsRestrictedHealerDPSMap(uint32 mapId) const;
 
     std::vector<uint32> excludedHunterPetFamilies;
+
+    // Random bot level brackets (periodic redistribution across per-faction level ranges). See
+    // RandomBotLevelMgr; percentages here are the as-configured values, not the runtime working copy.
+    bool levelBracketsEnabled;
+    uint32 levelBracketsCheckFrequency;
+    uint32 levelBracketsFlaggedCheckFrequency;
+    uint32 levelBracketsFlaggedProcessLimit;
+    bool levelBracketsIgnoreGuildWithRealPlayers;
+    bool levelBracketsIgnoreArenaTeamBots;
+    bool levelBracketsIgnoreFriendListed;
+    std::vector<std::string> levelBracketsExcludeNames;
+    uint8 levelBracketsNumRanges;
+    std::vector<LevelBracketConfig> levelBracketsAlliance;
+    std::vector<LevelBracketConfig> levelBracketsHorde;
+    bool levelBracketsDynamicDistribution;
+    float levelBracketsRealPlayerWeight;
+    bool levelBracketsSyncFactions;
+
+    // Random bot level reset (reset random bots reaching max level). See RandomBotLevelMgr.
+    bool resetBotLevelEnabled;
+    uint8 resetBotLevelMaxLevel;
+    uint8 resetBotLevelResetTo;
+    uint8 resetBotLevelSkipFrom;
+    uint8 resetBotLevelSkipTo;
+    uint8 resetBotLevelChance;
+    bool resetBotLevelScaledChance;
+    bool resetBotLevelRestrictTimePlayed;
+    uint32 resetBotLevelMinTimePlayed;
+    uint32 resetBotLevelPlayedTimeCheckFrequency;
+    bool resetBotLevelIgnoreGuildWithRealPlayers;
+    std::vector<std::string> resetBotLevelExcludeNames;
 
 private:
     PlayerbotAIConfig() = default;

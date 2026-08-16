@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2016+ AzerothCore <www.azerothcore.org>, released under GNU AGPL v3 license, you may redistribute it
- * and/or modify it under version 3 of the License, or (at your option), any later version.
+ * This file is part of the mod-playerbots module for AzerothCore. See AUTHORS file for Copyright
+ * information; released under GNU GPL v2 license, redistribute/modify under version 2 of the License,
+ * or (at your option) any later version.
  */
 
 #include "AttackersValue.h"
-
 #include "CellImpl.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
@@ -154,6 +154,11 @@ bool AttackersValue::IsPossibleTarget(Unit* attacker, Player* bot, float /*range
     if (attacker->HasUnitFlag(UNIT_FLAG_IMMUNE_TO_PC) || attacker->HasUnitFlag(UNIT_FLAG_NOT_SELECTABLE))
         return false;
 
+    // Skip targets that are immune to all damage (e.g., Ice Block, Divine Shield)
+    if (attacker->IsImmunedToDamage(SPELL_SCHOOL_MASK_NORMAL) &&
+        attacker->IsImmunedToDamage(SPELL_SCHOOL_MASK_MAGIC))
+        return false;
+
     // Relationship checks
     if (attacker->IsFriendlyTo(bot))
         return false;
@@ -211,7 +216,7 @@ bool AttackersValue::IsPossibleTarget(Unit* attacker, Player* bot, float /*range
         if (bot->GetGroup() && botAI->GetMaster())
         {
             PlayerbotAI* masterBotAI = GET_PLAYERBOT_AI(botAI->GetMaster());
-            if (masterBotAI && !masterBotAI->IsRealPlayer())
+            if (masterBotAI && !IsSelfBot(botAI->GetMaster()))
                 isMemberBotGroup = true;
         }
 
