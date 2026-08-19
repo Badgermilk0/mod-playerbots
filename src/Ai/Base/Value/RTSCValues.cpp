@@ -11,6 +11,12 @@ bool SeeSpellLocationValue::EqualToLast(WorldPosition value) { return value == l
 
 WorldPosition SeeSpellLocationValue::Calculate() { return value; }
 
+void SeeSpellLocationValue::Set(WorldPosition value)
+{
+    this->value = value;
+    UpdateChange();
+}
+
 std::string const RTSCSavedLocationValue::Save() { return value.to_string(); }
 
 bool RTSCSavedLocationValue::Load(std::string const text)

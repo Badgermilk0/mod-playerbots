@@ -21,6 +21,12 @@ public:
 
     bool EqualToLast(WorldPosition value) override;
     WorldPosition Calculate() override;
+
+    // MemoryCalculatedValue::Set() discards its argument (it re-sets the member to itself), so
+    // without this override "see spell location" can never be written: SET_AI_VALUE in
+    // SeeSpellAction and the MultiBot bridge's "regroup on me" both silently did nothing, and
+    // `rtsc last` then moved bots relative to a default WorldPosition (MAPID_INVALID, 0/0/0).
+    void Set(WorldPosition value) override;
 };
 
 class RTSCSelectedValue : public ManualSetValue<bool>
