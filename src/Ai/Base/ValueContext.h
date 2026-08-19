@@ -311,6 +311,7 @@ public:
         creators["see spell location"] = &ValueContext::see_spell_location;
         creators["RTSC selected"] = &ValueContext::RTSC_selected;
         creators["RTSC next spell action"] = &ValueContext::RTSC_next_spell_action;
+        creators["RTSC selection locked"] = &ValueContext::RTSC_selection_locked;
         creators["RTSC saved location"] = &ValueContext::RTSC_saved_location;
 
         creators["has area debuff"] = &ValueContext::has_area_debuff;
@@ -568,6 +569,7 @@ private:
     static UntypedValue* see_spell_location(PlayerbotAI* botAI) { return new SeeSpellLocationValue(botAI); }
     static UntypedValue* RTSC_selected(PlayerbotAI* botAI) { return new RTSCSelectedValue(botAI); }
     static UntypedValue* RTSC_next_spell_action(PlayerbotAI* botAI) { return new RTSCNextSpellActionValue(botAI); }
+    static UntypedValue* RTSC_selection_locked(PlayerbotAI* botAI) { return new RTSCSelectionLockedValue(botAI); }
     static UntypedValue* RTSC_saved_location(PlayerbotAI* botAI) { return new RTSCSavedLocationValue(botAI); }
 
     static UntypedValue* has_area_debuff(PlayerbotAI* botAI) { return new HasAreaDebuffValue(botAI); }

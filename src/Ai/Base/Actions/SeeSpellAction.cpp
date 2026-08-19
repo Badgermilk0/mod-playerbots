@@ -99,17 +99,28 @@ bool SeeSpellAction::Execute(Event event)
 
     if (nextAction.empty())
     {
-        if (!inRange && selected)
-            master->SendPlaySpellVisual(bot->GetGUID(), 6372);
-        else if (inRange && !selected)
-            master->SendPlaySpellVisual(bot->GetGUID(), 5036);
+        // A plain cast is upstream's rubber-band select: everyone within 10 yards becomes the new
+        // selection, everyone else is dropped. That is only wanted when the click *is* the
+        // selection. When the master's UI drives an explicit one (roles, groups), the same write
+        // silently deselects the bots being sent - they are far from the click by definition - and
+        // selects whatever bystanders stand at the destination, which then get dragged along by
+        // the next cast. The lock keeps the flags untouched; the move below is unaffected.
+        bool const selectionLocked = AI_VALUE(bool, "RTSC selection locked");
 
-        SET_AI_VALUE(bool, "RTSC selected", inRange);
+        if (!selectionLocked)
+        {
+            if (!inRange && selected)
+                master->SendPlaySpellVisual(bot->GetGUID(), 6372);
+            else if (inRange && !selected)
+                master->SendPlaySpellVisual(bot->GetGUID(), 5036);
+
+            SET_AI_VALUE(bool, "RTSC selected", inRange);
+        }
 
         if (selected)
             return MoveToSpell(spellPosition);
 
-        return inRange;
+        return !selectionLocked && inRange;
     }
     else if (nextAction == "move")
     {

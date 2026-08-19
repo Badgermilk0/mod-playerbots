@@ -36,6 +36,19 @@ public:
         : ManualSetValue(botAI, defaultvalue, name){};
 };
 
+// Set while the master's UI owns the selection. SeeSpellAction's rubber-band branch otherwise
+// replaces *every* bot's "RTSC selected" with "was within 10 yards of the click", which drops the
+// bots that were deliberately selected (they are far from the click) and adds whatever bystanders
+// happen to stand at the destination. Defaults false, so an unlocked bot behaves exactly as
+// upstream does; only a client that asks for the lock sees the difference.
+class RTSCSelectionLockedValue : public ManualSetValue<bool>
+{
+public:
+    RTSCSelectionLockedValue(PlayerbotAI* botAI, bool defaultvalue = false,
+                             std::string const name = "RTSC selection locked")
+        : ManualSetValue(botAI, defaultvalue, name){};
+};
+
 class RTSCNextSpellActionValue : public ManualSetValue<std::string>
 {
 public:
