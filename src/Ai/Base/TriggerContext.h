@@ -19,6 +19,7 @@
 #include "NewRpgTriggers.h"
 #include "PullTriggers.h"
 #include "PvpTriggers.h"
+#include "RTSCForceMoveAction.h"
 #include "RangeTriggers.h"
 #include "RpgTriggers.h"
 #include "RtiTriggers.h"
@@ -36,6 +37,7 @@ public:
         creators["return"] = &TriggerContext::_return;
         creators["sit"] = &TriggerContext::sit;
         creators["return to stay position"] = &TriggerContext::return_to_stay_position;
+        creators["rtsc forced move"] = &TriggerContext::rtsc_forced_move;
         creators["collision"] = &TriggerContext::collision;
 
         creators["timer"] = &TriggerContext::Timer;
@@ -255,6 +257,7 @@ private:
     static Trigger* no_rti(PlayerbotAI* botAI) { return new NoRtiTrigger(botAI); }
     static Trigger* _return(PlayerbotAI* botAI) { return new ReturnTrigger(botAI); }
     static Trigger* return_to_stay_position(PlayerbotAI* ai) { return new ReturnToStayPositionTrigger(ai); }
+    static Trigger* rtsc_forced_move(PlayerbotAI* botAI) { return new RTSCForceMoveTrigger(botAI); }
     static Trigger* sit(PlayerbotAI* botAI) { return new SitTrigger(botAI); }
     static Trigger* far_from_rpg_target(PlayerbotAI* botAI) { return new FarFromRpgTargetTrigger(botAI); }
     static Trigger* near_rpg_target(PlayerbotAI* botAI) { return new NearRpgTargetTrigger(botAI); }

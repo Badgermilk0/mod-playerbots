@@ -181,6 +181,26 @@ bool SeeSpellAction::MoveToSpell(WorldPosition& spellPosition, bool inFormation)
         posMap["stay"] = stayPosition;
     }
 
+    // Force move: the master's UI asked for this destination to be reached whatever happens. The
+    // move below is a single spline, and stamped MOVEMENT_NORMAL it loses the motion master to the
+    // first combat chase (MOVEMENT_COMBAT) on the next tick - which is why bots abandon an RTSC
+    // move the moment something aggroes. Remembering the point lets "rtsc forced move" re-issue it
+    // until the bot arrives, and MOVEMENT_FORCED refuses every combat chase in the meantime.
+    // Nothing here runs unless the flag was explicitly set, so the unforced path is untouched.
+    if (AI_VALUE(bool, "RTSC force enabled"))
+    {
+        SET_AI_VALUE(WorldPosition, "RTSC forced destination", spellPosition);
+        SET_AI_VALUE(uint32, "RTSC forced deadline", getMSTime() + sPlayerbotAIConfig.rtscForceMoveTimeout);
+
+        if (bot->IsWithinLOS(spellPosition.GetPositionX(), spellPosition.GetPositionY(), spellPosition.GetPositionZ()))
+            return MoveNear(spellPosition.GetMapId(), spellPosition.GetPositionX(), spellPosition.GetPositionY(),
+                            spellPosition.GetPositionZ(), 0, MovementPriority::MOVEMENT_FORCED);
+
+        return MoveTo(spellPosition.GetMapId(), spellPosition.GetPositionX(), spellPosition.GetPositionY(),
+                      spellPosition.GetPositionZ(), false, false, false, false,
+                      MovementPriority::MOVEMENT_FORCED);
+    }
+
     if (bot->IsWithinLOS(spellPosition.GetPositionX(), spellPosition.GetPositionY(), spellPosition.GetPositionZ()))
         return MoveNear(spellPosition.GetMapId(), spellPosition.GetPositionX(), spellPosition.GetPositionY(), spellPosition.GetPositionZ(), 0);
 

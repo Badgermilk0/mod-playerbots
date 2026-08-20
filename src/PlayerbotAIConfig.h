@@ -110,6 +110,10 @@ public:
     uint32 globalCoolDown, reactDelay, maxWaitForMove, disableMoveSplinePath, maxMovementSearchTime, expireActionTime,
         dispelAuraDuration, passiveDelay, repeatDelay, errorDelay, rpgDelay, sitDelay, returnDelay, lootDelay;
     bool dynamicReactDelay;
+    // RTSC force move: how long a bot keeps re-issuing a forced destination before giving up, and
+    // how close it has to get before the escort is considered finished.
+    uint32 rtscForceMoveTimeout;
+    float rtscForceMoveArriveDistance;
     float sightDistance, spellDistance, reactDistance, grindDistance, lootDistance, shootDistance, fleeDistance,
         tooCloseDistance, meleeDistance, followDistance, whisperDistance, contactDistance, aoeRadius, rpgDistance,
         targetPosRecalcDistance, farDistance, healDistance, aggroDistance;

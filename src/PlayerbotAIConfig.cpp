@@ -95,6 +95,8 @@ bool PlayerbotAIConfig::Initialize()
     dispelAuraDuration = sConfigMgr->GetOption<int32>("AiPlayerbot.DispelAuraDuration", 700);
     reactDelay = sConfigMgr->GetOption<int32>("AiPlayerbot.ReactDelay", 100);
     dynamicReactDelay = sConfigMgr->GetOption<bool>("AiPlayerbot.DynamicReactDelay", true);
+    rtscForceMoveTimeout = sConfigMgr->GetOption<int32>("AiPlayerbot.RTSCForceMoveTimeout", 60000);
+    rtscForceMoveArriveDistance = sConfigMgr->GetOption<float>("AiPlayerbot.RTSCForceMoveArriveDistance", 3.0f);
     passiveDelay = sConfigMgr->GetOption<int32>("AiPlayerbot.PassiveDelay", 10000);
     repeatDelay = sConfigMgr->GetOption<int32>("AiPlayerbot.RepeatDelay", 2000);
     errorDelay = sConfigMgr->GetOption<int32>("AiPlayerbot.ErrorDelay", 100);

@@ -33,6 +33,7 @@ bool RTSCAction::Execute(Event event)
 
         RESET_AI_VALUE(bool, "RTSC selected");
         RESET_AI_VALUE(std::string, "RTSC next spell action");
+        RESET_AI_VALUE(WorldPosition, "RTSC forced destination");
 
         for (auto value : botAI->GetAiObjectContext()->GetValues())
             if (value.find("RTSC saved location::") != std::string::npos)
@@ -53,6 +54,10 @@ bool RTSCAction::Execute(Event event)
     {
         RESET_AI_VALUE(bool, "RTSC selected");
         RESET_AI_VALUE(std::string, "RTSC next spell action");
+        // Also aborts a forced move in flight - `cancel` is what the MultiBot bar sends when the
+        // panel closes, and leaving a bot running to a spot nobody can see any more is worse than
+        // stopping it.
+        RESET_AI_VALUE(WorldPosition, "RTSC forced destination");
         if (selected)
             master->SendPlaySpellVisual(bot->GetGUID(), 6372);
         return true;

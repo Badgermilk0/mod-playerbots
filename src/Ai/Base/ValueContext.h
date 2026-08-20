@@ -312,6 +312,9 @@ public:
         creators["RTSC selected"] = &ValueContext::RTSC_selected;
         creators["RTSC next spell action"] = &ValueContext::RTSC_next_spell_action;
         creators["RTSC selection locked"] = &ValueContext::RTSC_selection_locked;
+        creators["RTSC force enabled"] = &ValueContext::RTSC_force_enabled;
+        creators["RTSC forced destination"] = &ValueContext::RTSC_forced_destination;
+        creators["RTSC forced deadline"] = &ValueContext::RTSC_forced_deadline;
         creators["RTSC saved location"] = &ValueContext::RTSC_saved_location;
 
         creators["has area debuff"] = &ValueContext::has_area_debuff;
@@ -570,6 +573,9 @@ private:
     static UntypedValue* RTSC_selected(PlayerbotAI* botAI) { return new RTSCSelectedValue(botAI); }
     static UntypedValue* RTSC_next_spell_action(PlayerbotAI* botAI) { return new RTSCNextSpellActionValue(botAI); }
     static UntypedValue* RTSC_selection_locked(PlayerbotAI* botAI) { return new RTSCSelectionLockedValue(botAI); }
+    static UntypedValue* RTSC_force_enabled(PlayerbotAI* botAI) { return new RTSCForceEnabledValue(botAI); }
+    static UntypedValue* RTSC_forced_destination(PlayerbotAI* botAI) { return new RTSCForcedDestinationValue(botAI); }
+    static UntypedValue* RTSC_forced_deadline(PlayerbotAI* botAI) { return new RTSCForcedDeadlineValue(botAI); }
     static UntypedValue* RTSC_saved_location(PlayerbotAI* botAI) { return new RTSCSavedLocationValue(botAI); }
 
     static UntypedValue* has_area_debuff(PlayerbotAI* botAI) { return new HasAreaDebuffValue(botAI); }

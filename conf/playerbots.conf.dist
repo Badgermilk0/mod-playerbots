@@ -349,6 +349,13 @@ AiPlayerbot.GlobalCooldown = 500
 # Max wait time when moving
 AiPlayerbot.MaxWaitForMove = 5000
 
+# RTSC "force move": when a client (e.g. the MultiBot bar) sets the per-bot "RTSC force enabled"
+# flag, the bot carries its RTSC destination out to completion instead of losing it to the first
+# combat chase. These bound that escort: how long it keeps trying before giving up (ms), and how
+# close it must get to count as arrived (yards). Both only matter while the flag is set.
+AiPlayerbot.RTSCForceMoveTimeout = 60000
+AiPlayerbot.RTSCForceMoveArriveDistance = 3.0
+
 # Enable/disable use of MoveSplinePath for bot movement
 # Disabling will result in more erratic movement but is required for stuns, snares, and roots to work on bots
 # Default: 0 - MoveSplinePath enabled

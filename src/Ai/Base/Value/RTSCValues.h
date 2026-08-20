@@ -49,6 +49,41 @@ public:
         : ManualSetValue(botAI, defaultvalue, name){};
 };
 
+// Set while the master's UI asks for a "force move": an RTSC destination the bot carries out to
+// completion. Upstream's move is a one-shot spline stamped MOVEMENT_NORMAL, so the first combat
+// chase (MOVEMENT_COMBAT) re-points the motion master on the very next tick and the order is lost
+// - nothing stores it. With this flag set, MoveToSpell remembers the point below and moves at
+// MOVEMENT_FORCED, and "rtsc forced move" re-issues it until the bot arrives. Defaults false, so
+// an unforced bot behaves exactly as upstream does.
+class RTSCForceEnabledValue : public ManualSetValue<bool>
+{
+public:
+    RTSCForceEnabledValue(PlayerbotAI* botAI, bool defaultvalue = false,
+                          std::string const name = "RTSC force enabled")
+        : ManualSetValue(botAI, defaultvalue, name){};
+};
+
+// The point a forced move is heading for, already carrying the bot's formation offset. Beware:
+// WorldPosition::operator bool() is TRUE for a default-constructed value (it holds MAPID_INVALID),
+// so this must never be tested with `if (position)` - see RTSCForceMoveAction::HasDestination.
+class RTSCForcedDestinationValue : public ManualSetValue<WorldPosition>
+{
+public:
+    RTSCForcedDestinationValue(PlayerbotAI* botAI, WorldPosition defaultvalue = WorldPosition(),
+                               std::string const name = "RTSC forced destination")
+        : ManualSetValue(botAI, defaultvalue, name){};
+};
+
+// getMSTime() past which a forced move gives up, so a bot that cannot reach its point (bad path,
+// permanent root) returns to normal AI instead of running at a wall for ever.
+class RTSCForcedDeadlineValue : public ManualSetValue<uint32>
+{
+public:
+    RTSCForcedDeadlineValue(PlayerbotAI* botAI, uint32 defaultvalue = 0,
+                            std::string const name = "RTSC forced deadline")
+        : ManualSetValue(botAI, defaultvalue, name){};
+};
+
 class RTSCNextSpellActionValue : public ManualSetValue<std::string>
 {
 public:
