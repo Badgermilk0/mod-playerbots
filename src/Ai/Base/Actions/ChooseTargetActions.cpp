@@ -12,6 +12,7 @@
 #include "Playerbots.h"
 #include "PossibleRpgTargetsValue.h"
 #include "PvpTriggers.h"
+#include "RTSCForceMoveAction.h"
 #include "RtiTargetValue.h"
 #include "ServerFacade.h"
 
@@ -95,7 +96,16 @@ bool AttackAnythingAction::Execute(Event event)
             if (char const* grindName = grindTarget->GetName().c_str())
             {
                 context->GetValue<ObjectGuid>("pull target")->Set(grindTarget->GetGUID());
-                bot->GetMotionMaster()->Clear();
+
+                // This Clear() is the one combat path that goes behind the movement priority
+                // system's back - AttackAction's equivalent checks "last movement" first, this one
+                // never did. An RTSC forced move owns the motion master until the bot arrives, so
+                // under the grind strategy a bot picking up a target on the way used to drop the
+                // escort here no matter what priority it was moving at. Nothing changes for a bot
+                // without a forced destination stored, which is every bot unless the master's UI
+                // asked for one.
+                if (!RTSCForceMoveAction::IsUsableDestination(AI_VALUE(WorldPosition, "RTSC forced destination")))
+                    bot->GetMotionMaster()->Clear();
                 // bot->StopMoving();
             }
         }
