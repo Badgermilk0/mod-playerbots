@@ -114,6 +114,11 @@ public:
     // how close it has to get before the escort is considered finished.
     uint32 rtscForceMoveTimeout;
     float rtscForceMoveArriveDistance;
+    // RTSC order interruption: whether a new RTSC order drops the movement hold left by the
+    // previous one (so the newest click always wins), and how long an unforced order holds
+    // MOVEMENT_FORCED before the AI may reclaim movement. 0 on either disables that half.
+    bool rtscInterruptInFlightMove;
+    uint32 rtscUnforcedGrace;
     float sightDistance, spellDistance, reactDistance, grindDistance, lootDistance, shootDistance, fleeDistance,
         tooCloseDistance, meleeDistance, followDistance, whisperDistance, contactDistance, aoeRadius, rpgDistance,
         targetPosRecalcDistance, farDistance, healDistance, aggroDistance;

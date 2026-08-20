@@ -181,6 +181,16 @@ bool SeeSpellAction::MoveToSpell(WorldPosition& spellPosition, bool inFormation)
         posMap["stay"] = stayPosition;
     }
 
+    // A new RTSC order supersedes whatever the bot is doing, its own move in flight included.
+    // MoveTo refuses any move whose priority is not *strictly* greater than the stamp left by the
+    // last one (IsWaitingForLastMove compares with >), so a re-click at the same priority is
+    // dropped for up to AiPlayerbot.MaxWaitForMove - and unforced, nothing re-issues it, so the
+    // click is simply lost. Set(nullptr) is the same idiom StayActionBase::Stay uses to release
+    // the hold; it also clears lastMoveShort, so IsDuplicateMove cannot refuse the re-issue
+    // either. Scoped to MoveToSpell, which only the RTSC paths call.
+    if (sPlayerbotAIConfig.rtscInterruptInFlightMove)
+        AI_VALUE(LastMovement&, "last movement").Set(nullptr);
+
     // Force move: the master's UI asked for this destination to be reached whatever happens. The
     // move below is a single spline, and stamped MOVEMENT_NORMAL it loses the motion master to the
     // first combat chase (MOVEMENT_COMBAT) on the next tick - which is why bots abandon an RTSC
@@ -201,11 +211,33 @@ bool SeeSpellAction::MoveToSpell(WorldPosition& spellPosition, bool inFormation)
                       MovementPriority::MOVEMENT_FORCED);
     }
 
-    if (bot->IsWithinLOS(spellPosition.GetPositionX(), spellPosition.GetPositionY(), spellPosition.GetPositionZ()))
-        return MoveNear(spellPosition.GetMapId(), spellPosition.GetPositionX(), spellPosition.GetPositionY(), spellPosition.GetPositionZ(), 0);
+    // Unforced, the move is stamped MOVEMENT_NORMAL and any combat chase outranks it on the next
+    // tick - so with the hold cleared above the click registers but a fighting bot never visibly
+    // turns. Issue it forced and then cut the hold down to the grace period: MoveTo stamps the
+    // whole travel time (capped at MaxWaitForMove), and leaving that at MOVEMENT_FORCED would just
+    // be Force mode by another name. Only the first `grace` ms are protected; after that the AI
+    // reclaims movement exactly as before. Gated on the interrupt flag as well, so clearing that
+    // one option is a complete revert to the upstream MOVEMENT_NORMAL stamp.
+    uint32 const grace =
+        sPlayerbotAIConfig.rtscInterruptInFlightMove ? sPlayerbotAIConfig.rtscUnforcedGrace : 0;
+    MovementPriority const priority =
+        grace ? MovementPriority::MOVEMENT_FORCED : MovementPriority::MOVEMENT_NORMAL;
 
-    return MoveTo(spellPosition.GetMapId(), spellPosition.GetPositionX(), spellPosition.GetPositionY(), spellPosition.GetPositionZ(), false,
-                  false);
+    bool const moved =
+        bot->IsWithinLOS(spellPosition.GetPositionX(), spellPosition.GetPositionY(), spellPosition.GetPositionZ())
+            ? MoveNear(spellPosition.GetMapId(), spellPosition.GetPositionX(), spellPosition.GetPositionY(),
+                       spellPosition.GetPositionZ(), 0, priority)
+            : MoveTo(spellPosition.GetMapId(), spellPosition.GetPositionX(), spellPosition.GetPositionY(),
+                     spellPosition.GetPositionZ(), false, false, false, false, priority);
+
+    if (moved && grace)
+    {
+        LastMovement& lastMove = AI_VALUE(LastMovement&, "last movement");
+        if (lastMove.lastdelayTime > static_cast<float>(grace))
+            lastMove.lastdelayTime = static_cast<float>(grace);
+    }
+
+    return moved;
 }
 
 void SeeSpellAction::SetFormationOffset(WorldPosition& spellPosition)

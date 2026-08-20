@@ -356,6 +356,21 @@ AiPlayerbot.MaxWaitForMove = 5000
 AiPlayerbot.RTSCForceMoveTimeout = 60000
 AiPlayerbot.RTSCForceMoveArriveDistance = 3.0
 
+# RTSC order interruption: "the newest click wins". A move is refused unless its priority is
+# strictly greater than the one still held by the previous move (up to MaxWaitForMove above), so
+# a second RTSC order issued mid-run used to be dropped - lost outright when unforced, merely
+# late when forced. With this on, a new RTSC order releases that hold first.
+# Default: 1 - enabled (0 restores the upstream "finish the current move first" behaviour)
+AiPlayerbot.RTSCInterruptInFlightMove = 1
+
+# How long (ms) an *unforced* RTSC order holds MOVEMENT_FORCED before the AI may reclaim
+# movement. Without it a bot already in combat registers the new order but its own combat chase
+# outranks it on the very next tick, so it never visibly turns. It still fights back, and it
+# still abandons the destination once this lapses - use the "RTSC force enabled" flag for a move
+# that must complete. Only applies when RTSCInterruptInFlightMove is on.
+# Default: 1500 (0 disables the grace and stamps the move MOVEMENT_NORMAL as upstream does)
+AiPlayerbot.RTSCUnforcedGrace = 1500
+
 # Enable/disable use of MoveSplinePath for bot movement
 # Disabling will result in more erratic movement but is required for stuns, snares, and roots to work on bots
 # Default: 0 - MoveSplinePath enabled
