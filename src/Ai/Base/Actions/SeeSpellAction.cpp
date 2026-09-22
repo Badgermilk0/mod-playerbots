@@ -124,6 +124,16 @@ bool SeeSpellAction::Execute(Event event)
     }
     else if (nextAction == "move")
     {
+        // One arming, one move -- the same contract as `save <n>` below, which has always cleared
+        // itself here.
+        //
+        // Left set, `move` was a per-bot mode that nothing but `cancel`/`reset` ever ended, and
+        // this branch does not test "RTSC selected" either -- so a bot armed while the whole pool
+        // was selected went on obeying every later cast no matter how far the master's UI had
+        // narrowed the selection since. An order aimed at one subgroup moved that subgroup *and*
+        // everyone still carrying an old arming, which from the client looks exactly like the
+        // selection having silently grown.
+        RESET_AI_VALUE(std::string, "RTSC next spell action");
         return MoveToSpell(spellPosition);
     }
     else if (nextAction.find("save ") != std::string::npos)
