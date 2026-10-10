@@ -21,7 +21,7 @@ class WorldPosition;
 //
 // It runs at relevance 100 (above ACTION_EMERGENCY, the same relevance the "see spell" packet
 // handler already uses), so it is always evaluated before any combat action can claim the tick.
-// That matters because MoveTo caps its no-interruption window at AiPlayerbot.MaxWaitForMove: the
+// That matters because MoveTo caps its no-interruption window at Playerbots.MaxWaitForMove: the
 // re-issue has to happen in the same tick the window lapses, or a combat chase slips through.
 //
 // While its own spline is in flight it deliberately returns false, handing the tick back to the

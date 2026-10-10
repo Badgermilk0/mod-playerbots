@@ -43,7 +43,7 @@ bool RTSCForceMoveAction::Execute(Event /*event*/)
     if (!bot->IsAlive() || bot->GetMapId() != destination.GetMapId() ||
         (deadline && deadline <= getMSTime()) ||
         bot->GetExactDist(destination.GetPositionX(), destination.GetPositionY(),
-                          destination.GetPositionZ()) <= sPlayerbotAIConfig.rtscForceMoveArriveDistance)
+                          destination.GetPositionZ()) <= sPlayerbotAIConfig.RtscForceMoveArriveDistance)
     {
         ClearDestination();
         return false;

@@ -19,7 +19,7 @@ Creature* SeeSpellAction::CreateWps(Player* wpOwner, float x, float y, float z, 
                                     bool important)
 {
     float dist = wpOwner->GetDistance(x, y, z);
-    float delay = 1000.0f * dist / wpOwner->GetSpeed(MOVE_RUN) + sPlayerbotAIConfig.reactDelay;
+    float delay = IN_MILLISECONDS * dist / wpOwner->GetSpeed(MOVE_RUN) + sPlayerbotAIConfig.ReactDelay;
 
     if (!important)
         delay *= 0.25;
@@ -60,7 +60,7 @@ bool SeeSpellAction::Execute(Event event)
 
     if (FISHING_SPELLS.find(spellId) != FISHING_SPELLS.end())
     {
-        if (AI_VALUE(bool, "can fish") && sPlayerbotAIConfig.enableFishingWithMaster)
+        if (AI_VALUE(bool, "can fish") && sPlayerbotAIConfig.EnableFishingWithMaster)
         {
             botAI->ChangeStrategy("+master fishing", BOT_STATE_NON_COMBAT);
             return true;
@@ -110,9 +110,9 @@ bool SeeSpellAction::Execute(Event event)
         if (!selectionLocked)
         {
             if (!inRange && selected)
-                master->SendPlaySpellVisual(bot->GetGUID(), 6372);
+                bot->SendPlaySpellVisual(6372);
             else if (inRange && !selected)
-                master->SendPlaySpellVisual(bot->GetGUID(), 5036);
+                bot->SendPlaySpellVisual(5036);
 
             SET_AI_VALUE(bool, "RTSC selected", inRange);
         }
@@ -167,11 +167,10 @@ bool SeeSpellAction::Execute(Event event)
 
 bool SeeSpellAction::SelectSpell(WorldPosition& spellPosition)
 {
-    Player* master = botAI->GetMaster();
     if (spellPosition.distance(bot) <= 5 || AI_VALUE(bool, "RTSC selected"))
     {
         SET_AI_VALUE(bool, "RTSC selected", true);
-        master->SendPlaySpellVisual(bot->GetGUID(), 5036);
+        bot->SendPlaySpellVisual(5036);
     }
 
     return true;
@@ -194,11 +193,11 @@ bool SeeSpellAction::MoveToSpell(WorldPosition& spellPosition, bool inFormation)
     // A new RTSC order supersedes whatever the bot is doing, its own move in flight included.
     // MoveTo refuses any move whose priority is not *strictly* greater than the stamp left by the
     // last one (IsWaitingForLastMove compares with >), so a re-click at the same priority is
-    // dropped for up to AiPlayerbot.MaxWaitForMove - and unforced, nothing re-issues it, so the
+    // dropped for up to Playerbots.MaxWaitForMove - and unforced, nothing re-issues it, so the
     // click is simply lost. Set(nullptr) is the same idiom StayActionBase::Stay uses to release
     // the hold; it also clears lastMoveShort, so IsDuplicateMove cannot refuse the re-issue
     // either. Scoped to MoveToSpell, which only the RTSC paths call.
-    if (sPlayerbotAIConfig.rtscInterruptInFlightMove)
+    if (sPlayerbotAIConfig.RtscInterruptInFlightMove)
         AI_VALUE(LastMovement&, "last movement").Set(nullptr);
 
     // Force move: the master's UI asked for this destination to be reached whatever happens. The
@@ -210,7 +209,7 @@ bool SeeSpellAction::MoveToSpell(WorldPosition& spellPosition, bool inFormation)
     if (AI_VALUE(bool, "RTSC force enabled"))
     {
         SET_AI_VALUE(WorldPosition, "RTSC forced destination", spellPosition);
-        SET_AI_VALUE(uint32, "RTSC forced deadline", getMSTime() + sPlayerbotAIConfig.rtscForceMoveTimeout);
+        SET_AI_VALUE(uint32, "RTSC forced deadline", getMSTime() + sPlayerbotAIConfig.RtscForceMoveTimeout);
 
         if (bot->IsWithinLOS(spellPosition.GetPositionX(), spellPosition.GetPositionY(), spellPosition.GetPositionZ()))
             return MoveNear(spellPosition.GetMapId(), spellPosition.GetPositionX(), spellPosition.GetPositionY(),
@@ -229,7 +228,7 @@ bool SeeSpellAction::MoveToSpell(WorldPosition& spellPosition, bool inFormation)
     // reclaims movement exactly as before. Gated on the interrupt flag as well, so clearing that
     // one option is a complete revert to the upstream MOVEMENT_NORMAL stamp.
     uint32 const grace =
-        sPlayerbotAIConfig.rtscInterruptInFlightMove ? sPlayerbotAIConfig.rtscUnforcedGrace : 0;
+        sPlayerbotAIConfig.RtscInterruptInFlightMove ? sPlayerbotAIConfig.RtscUnforcedGrace : 0;
     MovementPriority const priority =
         grace ? MovementPriority::MOVEMENT_FORCED : MovementPriority::MOVEMENT_NORMAL;
 

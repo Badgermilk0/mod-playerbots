@@ -11,7 +11,7 @@ RTSCStrategy::RTSCStrategy(PlayerbotAI* botAI) : Strategy(botAI) {}
 
 // Relevance 100 - above ACTION_EMERGENCY (90) and the same relevance the "see spell" packet
 // handler runs at. It has to be evaluated before any combat action can claim the tick, because
-// MoveTo caps its no-interruption window at AiPlayerbot.MaxWaitForMove and the forced move must be
+// MoveTo caps its no-interruption window at Playerbots.MaxWaitForMove and the forced move must be
 // re-issued in the very tick that window lapses. The trigger only fires while a forced
 // destination is stored, so an unforced bot pays nothing for this.
 void RTSCStrategy::InitTriggers(std::vector<TriggerNode*>& triggers)
