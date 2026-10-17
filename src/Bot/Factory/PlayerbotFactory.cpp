@@ -2466,7 +2466,7 @@ void PlayerbotFactory::InitEquipment(bool incremental, bool second_chance)
                     for (uint32 itemId : sRandomItemMgr.GetEquipmentNew(requiredLevel, inventoryType))
                     {
                         uint32 skipProb = 25;
-                        if (urand(1, 100) <= skipProb)
+                        if (!variety.KeepsAllCandidates() && urand(1, 100) <= skipProb)
                             continue;
 
                         ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemId);

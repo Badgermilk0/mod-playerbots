@@ -21,8 +21,9 @@
 // Match mode  : 'autogear match' gives each slot the master's same-slot mixed score (ilvl x quality
 //               factor) +/- a small jitter.
 //
-// A slot target is a ceiling on the candidates' mixed score; the factory still picks the best
-// stat-scoring item under it. With both features off the object is inert and InitEquipment runs the
+// In random mode a slot target is a ceiling on the candidates' mixed score; in match mode it is a
+// band either side of the master's score. The factory still picks the best stat-scoring item among
+// the candidates left. With both features off the object is inert and InitEquipment runs the
 // upstream logic unchanged.
 class GearVariety
 {
@@ -33,6 +34,10 @@ public:
 
     // In variety mode the candidate gathering accepts every quality up to the cap, not just the cap.
     bool Active() const { return mode != Mode::Off; }
+
+    // Match mode turns off the factory's random 25% candidate skip, which would otherwise drop the
+    // item closest to the master's slot one time in four.
+    bool KeepsAllCandidates() const { return mode == Mode::Match; }
 
     // Drops candidates above the slot's target; never leaves a slot without a candidate.
     void Filter(uint8 slot, std::vector<InventoryType> const& invTypes,

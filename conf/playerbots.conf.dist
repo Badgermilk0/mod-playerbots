@@ -2809,10 +2809,18 @@ Playerbots.GearVariety.SlotJitter = 0.15
 # Make 'autogear match' match the commanding player slot by slot: each bot slot aims at the
 # player's same-slot mixed score (2H counts for both hands; empty slots use the player's average)
 # instead of one average-item-level cap, and the bot's gear is erased and regeared from scratch.
-# AutoGearScoreLimit still caps the result.
+# The bot takes the best item for its spec within MatchBand of that score, above or below (the
+# nearest items when none fall inside), and the usual random 25% candidate skip is off for it.
+# AutoGearScoreLimit still caps the result. Slots that differ by class (a druid's idol against a
+# hunter's bow) will still score lower, because those items are lower level by nature.
 # Default: 0 (disabled, 'autogear match' uses the average item level)
 Playerbots.GearVariety.MatchPerSlot = 0
 
 # Per-slot spread for MatchPerSlot, as a fraction of the player's slot score.
 # Default: 0.03 (+/- 3%)
 Playerbots.GearVariety.MatchJitter = 0.03
+
+# How far from the (jittered) slot score, as a fraction of it, an item may be and still count as a
+# match for MatchPerSlot. Wider gives more spec choice, narrower tracks the player more closely.
+# Default: 0.05 (+/- 5%)
+Playerbots.GearVariety.MatchBand = 0.05

@@ -16,6 +16,7 @@
 #include "RandomItemMgr.h"
 #include "RandomPlayerbotMgr.h"
 #include <algorithm>
+#include <cmath>
 #include <map>
 #include <mutex>
 #include <shared_mutex>
@@ -32,6 +33,7 @@ namespace
         float slotJitter = 0.15f;
         bool matchPerSlot = false;
         float matchJitter = 0.03f;
+        float matchBand = 0.05f;
     };
 
     VarietyConfig config;
@@ -174,6 +176,8 @@ void GearVariety::LoadConfig()
     loaded.matchPerSlot = sConfigMgr->GetOption<bool>("Playerbots.GearVariety.MatchPerSlot", false);
     loaded.matchJitter =
         std::clamp(sConfigMgr->GetOption<float>("Playerbots.GearVariety.MatchJitter", 0.03f), 0.0f, 0.5f);
+    loaded.matchBand =
+        std::clamp(sConfigMgr->GetOption<float>("Playerbots.GearVariety.MatchBand", 0.05f), 0.0f, 0.5f);
 
     std::vector<float> weights =
         ParseFloatList(sConfigMgr->GetOption<std::string>("Playerbots.GearVariety.TierWeights", "30,30,25,12,3"));
@@ -314,28 +318,62 @@ void GearVariety::Filter(uint8 slot, std::vector<InventoryType> const& invTypes,
     if (!std::all_of(candidates.begin(), candidates.end(), isPoor))
         candidates.erase(std::remove_if(candidates.begin(), candidates.end(), isPoor), candidates.end());
 
-    std::pair<uint32, int32> lowest{0, 0};
-    float lowestScore = 0.0f;
     std::vector<std::pair<uint32, int32>> kept;
-    for (auto const& candidate : candidates)
+    if (mode == Mode::Match)
     {
-        ItemTemplate const* proto = sObjectMgr->GetItemTemplate(candidate.first);
-        if (!proto)
-            continue;
-
-        float const score = MixedScore(proto);
-        if (score <= target)
-            kept.push_back(candidate);
-        if (!lowest.first || score < lowestScore)
+        // Match aims AT the master's slot, not under it: keep everything within the band either
+        // side of the target. A ceiling dropped the bot a whole item-level step whenever the jitter
+        // landed under an item of exactly the master's score, so bots averaged ~10% below.
+        float const band = target * config.matchBand;
+        float nearest = -1.0f;
+        for (auto const& candidate : candidates)
         {
-            lowest = candidate;
-            lowestScore = score;
+            ItemTemplate const* proto = sObjectMgr->GetItemTemplate(candidate.first);
+            if (!proto)
+                continue;
+
+            float const distance = std::fabs(MixedScore(proto) - target);
+            if (distance <= band)
+                kept.push_back(candidate);
+            if (nearest < 0.0f || distance < nearest)
+                nearest = distance;
+        }
+
+        // Nothing in the band: keep the candidates nearest to the target, above or below.
+        if (kept.empty() && nearest >= 0.0f)
+        {
+            for (auto const& candidate : candidates)
+            {
+                ItemTemplate const* proto = sObjectMgr->GetItemTemplate(candidate.first);
+                if (proto && std::fabs(MixedScore(proto) - target) <= nearest + 0.5f)
+                    kept.push_back(candidate);
+            }
         }
     }
+    else
+    {
+        std::pair<uint32, int32> lowest{0, 0};
+        float lowestScore = 0.0f;
+        for (auto const& candidate : candidates)
+        {
+            ItemTemplate const* proto = sObjectMgr->GetItemTemplate(candidate.first);
+            if (!proto)
+                continue;
 
-    // Never leave the slot empty: with nothing under the target, take the weakest candidate.
-    if (kept.empty() && lowest.first)
-        kept.push_back(lowest);
+            float const score = MixedScore(proto);
+            if (score <= target)
+                kept.push_back(candidate);
+            if (!lowest.first || score < lowestScore)
+            {
+                lowest = candidate;
+                lowestScore = score;
+            }
+        }
+
+        // Never leave the slot empty: with nothing under the target, take the weakest candidate.
+        if (kept.empty() && lowest.first)
+            kept.push_back(lowest);
+    }
 
     LOG_DEBUG("playerbots", "GearVariety: {} slot {} target {:.0f}, {} of {} candidates kept", bot->GetName(), slot,
               target, kept.size(), candidates.size());
