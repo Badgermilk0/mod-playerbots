@@ -2785,12 +2785,15 @@ Playerbots.SummonAtInnkeepersEnabled = 1
 # so an ilvl 200 epic outranks an ilvl 213 blue.
 
 # Varied gear for world randombots (not addclass bots, not alt bots, not explicit init=/autogear).
-# Each full regear (new bot, bracket level change, periodic or .bot random re-randomize) rolls a
-# gear tier; every slot then aims at a jittered point of the level's item range, the 10th to 98th
+# Each full regear (a new bot, a bracket level change, or '.playerbots rndbot init') rolls a gear
+# tier; every slot then aims at a jittered point of the level's item range, the 10th to 98th
 # percentile of what that level can equip. The bot still takes the best item for its spec at or below
-# that point, so it wears a mix of greens, blues and purples. Level-up regears (AutoUpgradeEquip)
-# read the tier from the gear already worn instead of rolling again, so bots do not creep to the top.
-# Gear already worn is kept until the bot's next regear.
+# that point, so it wears a mix of greens, blues and purples. Incremental regears (level-ups via
+# AutoUpgradeEquip, and the periodic randomize, '.bot random' and 'rndbot levelup' when
+# EquipAndSpecPersistence = 0) read the tier from the gear already worn instead of rolling again, so
+# bots do not creep to the top. With EquipAndSpecPersistence = 1 those last three skip gear entirely.
+# Gear already worn is kept until the bot's next full regear: run '.playerbots rndbot init' once after
+# enabling this to re-roll every online randombot (it also re-rolls their level and teleports them).
 # Default: 0 (disabled)
 Playerbots.GearVariety.RandomBots = 0
 
