@@ -7,6 +7,7 @@
 #include "PlayerbotAIConfig.h"
 #include "BisListMgr.h"
 #include "Config.h"
+#include "GearVariety.h"
 #include "NewRpgInfo.h"
 #include "PlayerbotDungeonRepository.h"
 #include "PlayerbotFactory.h"
@@ -679,6 +680,7 @@ bool PlayerbotAIConfig::Initialize()
     AutoGearMatchOnly = sConfigMgr->GetOption<int32>("Playerbots.AutoGearMatchOnly", 0);
     AutoGearQualityLimit = sConfigMgr->GetOption<int32>("Playerbots.AutoGearQualityLimit", 3);
     AutoGearScoreLimit = sConfigMgr->GetOption<int32>("Playerbots.AutoGearScoreLimit", 0);
+    GearVariety::LoadConfig();
 
     RandomBotXPRate = sConfigMgr->GetOption<float>("Playerbots.RandomBotXPRate", 1.0);
     RandomBotAllianceRatio = sConfigMgr->GetOption<int32>("Playerbots.RandomBotAllianceRatio", 50);

@@ -13,6 +13,7 @@
 #include "ArenaTeamMgr.h"
 #include "DBCStores.h"
 #include "DBCStructure.h"
+#include "GearVariety.h"
 #include "GuildMgr.h"
 #include "InventoryAction.h"
 #include "Item.h"
@@ -2372,6 +2373,8 @@ void PlayerbotFactory::InitEquipment(bool incremental, bool second_chance)
     if (isPvp)
         calculator.SetPvpSpec(true);
 
+    GearVariety variety(bot, itemQuality, gearScoreLimit, incremental);
+
     // Pre-select CC-break trinket for PvP specs: best available by item level
     // that the bot meets the level requirement for.
     // Humans (Every Man for Himself) and Undead (Will of the Forsaken) have a
@@ -2490,7 +2493,8 @@ void PlayerbotFactory::InitEquipment(bool incremental, bool second_chance)
                         if (proto->Class != ITEM_CLASS_WEAPON && proto->Class != ITEM_CLASS_ARMOR)
                             continue;
 
-                        if (proto->Quality != uint32(desiredQuality))
+                        if (variety.Active() ? proto->Quality > uint32(desiredQuality)
+                                             : proto->Quality != uint32(desiredQuality))
                             continue;
 
                         if (proto->Class == ITEM_CLASS_ARMOR &&
@@ -2518,6 +2522,7 @@ void PlayerbotFactory::InitEquipment(bool incremental, bool second_chance)
         } while (items[slot].size() < 25 && desiredQuality-- > ITEM_QUALITY_POOR);
 
         std::vector<std::pair<uint32, int32>>& ids = items[slot];
+        variety.Filter(slot, GetPossibleInventoryTypeListBySlot((EquipmentSlots)slot), ids);
         if (ids.empty())
         {
             continue;

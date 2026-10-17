@@ -9,11 +9,13 @@
 #include "BisListMgr.h"
 #include "BudgetValues.h"
 #include "Event.h"
+#include "GearVariety.h"
 #include "PlayerbotFactory.h"
 #include "PlayerbotTextMgr.h"
 #include "Playerbots.h"
 #include "ReputationMgr.h"
 #include "Trainer.h"
+#include <optional>
 
 bool TrainerAction::Execute(Event event)
 {
@@ -609,6 +611,7 @@ bool AutoGearAction::Execute(Event event)
     // 'reset' erases all equipped gear and regears from scratch instead of upgrading incrementally.
     // It can be combined with a quality/ilvl argument: 'autogear reset green', 'autogear reset 200'.
     bool reset = false;
+    Player* matchMaster = nullptr;  // set when 'match' runs per slot (GearVariety)
     if (param == "reset" || param.rfind("reset ", 0) == 0)
     {
         reset = true;
@@ -652,7 +655,17 @@ bool AutoGearAction::Execute(Event event)
                 return false;
             }
 
-            ilvl = (ilvlCap == 0) ? requestedIlvl : std::min(requestedIlvl, ilvlCap);
+            // Optional (Playerbots.GearVariety.MatchPerSlot): each slot targets the master's same slot
+            // by quality-weighted item level instead of one average-ilvl cap, regearing from scratch so
+            // the bot follows the master down as well as up. ilvl stays at AutoGearScoreLimit, the hard cap.
+            if (GearVariety::MatchPerSlotEnabled())
+            {
+                matchMaster = master;
+                reset = true;
+            }
+            else
+                ilvl = (ilvlCap == 0) ? requestedIlvl : std::min(requestedIlvl, ilvlCap);
+
             if (ilvlCap != 0 && requestedIlvl > ilvlCap)
             {
                 std::map<std::string, std::string> phs;
@@ -725,7 +738,15 @@ bool AutoGearAction::Execute(Event event)
     std::map<std::string, std::string> announcePhs;
     announcePhs["%quality"] = ChatHelper::FormatItemQuality(quality);
     announcePhs["%ilvl"] = std::to_string(ilvl);
-    if (reset)
+    if (matchMaster)
+    {
+        announcePhs["%ilvl"] = std::to_string(GetWornItemLevelAverage(matchMaster));
+        botAI->TellMaster(PlayerbotTextMgr::instance().GetBotTextOrDefault(
+            "autogear_match_per_slot_msg",
+            "I'm erasing my gear and regearing to match yours slot by slot (your average item level %ilvl).",
+            announcePhs));
+    }
+    else if (reset)
         botAI->TellMaster(
             ilvl != 0
                 ? PlayerbotTextMgr::instance().GetBotTextOrDefault(
@@ -740,6 +761,11 @@ bool AutoGearAction::Execute(Event event)
                             "autogear_start_msg", "I'm auto gearing (%quality, up to item level %ilvl).", announcePhs)
                       : PlayerbotTextMgr::instance().GetBotTextOrDefault("autogear_start_any_ilvl_msg",
                                                                          "I'm auto gearing (%quality).", announcePhs));
+
+    // Per-slot master targets for the regear below; inert unless 'match' ran per slot.
+    std::optional<GearVariety::MatchScope> matchScope;
+    if (matchMaster)
+        matchScope.emplace(bot, matchMaster);
 
     if (reset)
     {

@@ -2773,3 +2773,43 @@ Playerbots.TargetPosRecalcDistance = 0.1
 
 # Allow bots to be summoned near innkeepers
 Playerbots.SummonAtInnkeepersEnabled = 1
+
+####################################################################################################
+# GEAR VARIETY (Badgermilk0 fork)
+#
+# Shapes the gear PlayerbotFactory picks, on top of the hard caps above (RandomGearQualityLimit /
+# RandomGearScoreLimit for randombots, AutoGearQualityLimit / AutoGearScoreLimit for autogear).
+# Both features default to off, which leaves gear generation exactly as upstream.
+#
+# Scores below are "mixed" item scores: item level x 1.1 per quality step (as in GetMixedGearScore),
+# so an ilvl 200 epic outranks an ilvl 213 blue.
+
+# Varied gear for world randombots (not addclass bots, not alt bots, not explicit init=/autogear).
+# Each full regear (new bot, bracket level change, periodic or .bot random re-randomize) rolls a
+# gear tier; every slot then aims at a jittered point of the level's item range, the 10th to 98th
+# percentile of what that level can equip. The bot still takes the best item for its spec at or below
+# that point, so it wears a mix of greens, blues and purples. Level-up regears (AutoUpgradeEquip)
+# read the tier from the gear already worn instead of rolling again, so bots do not creep to the top.
+# Gear already worn is kept until the bot's next regear.
+# Default: 0 (disabled)
+Playerbots.GearVariety.RandomBots = 0
+
+# Relative weight of each tier, and where in the level's item range each tier aims (0 = bottom,
+# 1 = top). Both lists need the same number of entries. Defaults: Fresh, Questing, Dungeon, Raider, Elite.
+Playerbots.GearVariety.TierWeights = 30,30,25,12,3
+Playerbots.GearVariety.TierCenters = 0.10,0.30,0.50,0.75,0.92
+
+# Per-slot spread around the tier's point, as a fraction of the item range.
+# Default: 0.15
+Playerbots.GearVariety.SlotJitter = 0.15
+
+# Make 'autogear match' match the commanding player slot by slot: each bot slot aims at the
+# player's same-slot mixed score (2H counts for both hands; empty slots use the player's average)
+# instead of one average-item-level cap, and the bot's gear is erased and regeared from scratch.
+# AutoGearScoreLimit still caps the result.
+# Default: 0 (disabled, 'autogear match' uses the average item level)
+Playerbots.GearVariety.MatchPerSlot = 0
+
+# Per-slot spread for MatchPerSlot, as a fraction of the player's slot score.
+# Default: 0.03 (+/- 3%)
+Playerbots.GearVariety.MatchJitter = 0.03
